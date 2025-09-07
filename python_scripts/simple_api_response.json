@@ -1,0 +1,168 @@
+{
+  "status": "success",
+  "status_code": 200,
+  "data": {
+    "status": "success",
+    "timestamp": "2025-09-08T02:12:24.344038",
+    "contact_info": {
+      "name": "ALEX CHEN",
+      "email": "alex.chen@email.com",
+      "email_valid": true,
+      "phone": "(555) 123-4567",
+      "phone_provided": true,
+      "location": "",
+      "links": [],
+      "completeness_score": 85
+    },
+    "education": [],
+    "experience": [],
+    "skills": {
+      "all_skills": [
+        "Python",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "categorized": {
+        "technical": [],
+        "programming_languages": [
+          "Python",
+          "JavaScript"
+        ],
+        "frameworks": [],
+        "tools": [],
+        "soft_skills": [],
+        "languages": []
+      },
+      "total_count": 5,
+      "matched": [
+        "Python",
+        "JavaScript",
+        "React"
+      ],
+      "missing": [],
+      "bonus": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "match_percentage": 100.0,
+      "coverage_analysis": {
+        "overall_coverage": 0,
+        "gap_level": "unknown",
+        "critical_missing": [],
+        "nice_to_have": []
+      }
+    },
+    "projects": [],
+    "certifications": [],
+    "role_inference": "Frontend Engineer",
+    "quality_scores": {
+      "available": false,
+      "error": null
+    },
+    "ats_compatibility": {
+      "available": true,
+      "score": 65.0,
+      "compatibility_level": "fair",
+      "file_format_score": 0,
+      "layout_score": 0,
+      "content_score": 0,
+      "priority_issues": [
+        "Incomplete contact information",
+        "Missing sections: education"
+      ],
+      "recommendations": {
+        "critical": [
+          "Add complete contact information (name, email, phone)"
+        ],
+        "high_priority": [
+          "Add clear 'Education' section heading"
+        ],
+        "medium_priority": [],
+        "low_priority": [
+          "Use standard fonts (Arial, Calibri, Times New Roman)",
+          "Ensure consistent formatting throughout document",
+          "Use bullet points for lists instead of special characters"
+        ]
+      }
+    },
+    "experience_summary": {
+      "total_years": 0.0,
+      "career_level": "entry",
+      "total_positions": 0,
+      "industries": [],
+      "company_sizes": [],
+      "most_recent_role": "",
+      "employment_gaps": []
+    },
+    "recommendations": {
+      "total_count": 5,
+      "by_priority": {
+        "critical": [],
+        "high_priority": [
+          "Improve ATS compatibility by simplifying formatting"
+        ],
+        "medium_priority": [],
+        "ats_improvements": {
+          "critical": [
+            "Add complete contact information (name, email, phone)"
+          ],
+          "high_priority": [
+            "Add clear 'Education' section heading"
+          ],
+          "medium_priority": [],
+          "low_priority": [
+            "Use standard fonts (Arial, Calibri, Times New Roman)",
+            "Ensure consistent formatting throughout document",
+            "Use bullet points for lists instead of special characters"
+          ]
+        },
+        "general": []
+      },
+      "top_3": [
+        "Improve ATS compatibility by simplifying formatting",
+        "critical",
+        "high_priority"
+      ]
+    },
+    "document_metrics": {
+      "file_info": {
+        "filename": "simple_test.docx",
+        "size_mb": 0,
+        "format": ""
+      },
+      "content_metrics": {
+        "total_words": 0,
+        "total_characters": 0,
+        "estimated_pages": 0,
+        "bullet_points": 0,
+        "sections_count": 0
+      },
+      "parsing_info": {
+        "parsing_method": "unknown",
+        "is_scanned": false,
+        "structure_quality": "unknown"
+      }
+    },
+    "strengths": [
+      "Excellent Content Fit",
+      "Excellent Clarity Quantification"
+    ],
+    "improvement_areas": [],
+    "match_analysis": {
+      "available": true,
+      "overall_match": 0,
+      "experience_level_match": "unknown",
+      "skills_coverage": 0,
+      "gap_analysis": {},
+      "recommendations": []
+    },
+    "keywords": {
+      "technical_keywords": [],
+      "industry_keywords": [],
+      "action_verbs": [],
+      "total_unique_keywords": 5
+    }
+  }
+}

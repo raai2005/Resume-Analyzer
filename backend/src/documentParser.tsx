@@ -305,6 +305,108 @@ export interface ATSAnalysisResult {
   priority_issues: string[];
 }
 
+export interface QualityAnalysisResult {
+  overall_score: number;
+  quality_level: string;
+  score_breakdown: {
+    content_fit: QualityScoreCategory;
+    clarity_quantification: QualityScoreCategory;
+    structure_readability: QualityScoreCategory;
+    ats_friendliness: QualityScoreCategory;
+  };
+  recommendations: {
+    critical: string[];
+    high_priority: string[];
+    medium_priority: string[];
+    low_priority: string[];
+  };
+  scoring_rubric: {
+    description: string;
+    categories: Record<string, string>;
+  };
+}
+
+export interface QualityScoreCategory {
+  score: number;
+  max_possible: number;
+  percentage: number;
+  details: QualityCategoryDetails;
+}
+
+export interface QualityCategoryDetails {
+  // Content Fit Details
+  skills_coverage_score?: number;
+  experience_alignment_score?: number;
+  skills_analysis?: {
+    target_skills_count: number;
+    matched_skills_count: number;
+    coverage_percentage: number;
+    matched_skills: string[];
+    missing_skills: string[];
+    bonus_skills: string[];
+  };
+  experience_analysis?: {
+    actual_years: number;
+    target_years?: number;
+    career_level: string;
+    alignment_type: string;
+  };
+  
+  // Clarity & Quantification Details
+  metrics_score?: number;
+  action_verbs_score?: number;
+  metrics_analysis?: {
+    total_bullet_points: number;
+    lines_with_metrics: number;
+    metrics_percentage: number;
+    total_metrics_found: number;
+    sample_metrics: string[];
+    improvement_potential: number;
+  };
+  action_verbs_analysis?: {
+    total_bullet_points: number;
+    verb_distribution: {
+      strong: number;
+      moderate: number;
+      weak: number;
+      none: number;
+    };
+    strong_verb_percentage: number;
+    sample_verbs_found: string[];
+    weak_or_missing_count: number;
+  };
+  
+  // Structure & Readability Details
+  sections_score?: number;
+  readability_score?: number;
+  sections_analysis?: {
+    required_sections: string[];
+    sections_found: Record<string, boolean>;
+    found_count: number;
+    required_count: number;
+    completion_percentage: number;
+    missing_sections: string[];
+  };
+  readability_analysis?: {
+    total_sentences: number;
+    average_sentence_length: number;
+    long_sentences_count: number;
+    long_sentences_percentage: number;
+    passive_sentences_count: number;
+    passive_voice_percentage: number;
+    readability_issues: string[];
+  };
+  
+  // ATS Friendliness Details (can reuse existing ATSAnalysisResult or create simplified version)
+  score_source?: string;
+  original_ats_score?: number;
+  compatibility_level?: string;
+  priority_issues?: string[];
+  symbol_count?: number;
+  detected_issues?: string[];
+  recommendations?: string[];
+}
+
 export interface ParsedDocument {
   success: boolean;
   file_info: {
@@ -326,6 +428,7 @@ export interface ParsedDocument {
   information_extraction?: InformationExtractionResult;
   ai_analysis?: AIAnalysisResult;
   ats_analysis?: ATSAnalysisResult;
+  quality_analysis?: QualityAnalysisResult;
   section_detection: {
     success: boolean;
     sections: ResumeSection[];
@@ -366,6 +469,12 @@ export interface ParsedDocument {
     ats_priority_issues?: number;
     ats_word_count?: number;
     ats_estimated_pages?: number;
+    // Quality analysis scores
+    quality_score?: number;
+    quality_level?: string;
+    content_fit_score?: number;
+    clarity_score?: number;
+    structure_score?: number;
   };
   recommendations: string[];
   error?: string;

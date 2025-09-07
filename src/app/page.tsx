@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
+import { AnalysisResults, AnalysisResponse } from "../components/AnalysisResults";
 
-// Define interfaces for the parsing results
+// Define interfaces for the parsing results (legacy - kept for backward compatibility)
 interface ContactInfo {
   email?: string;
   phone?: string;
@@ -49,14 +50,26 @@ export default function Home() {
   const [jobDescUrl, setJobDescUrl] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState<ParsedResults | null>(null);
+  const [enhancedResults, setEnhancedResults] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
       setResults(null); // Clear previous results
+      setEnhancedResults(null);
       setError(null);
     }
+  };
+
+  const handleReset = () => {
+    setFile(null);
+    setJobTitle("");
+    setJobDesc("");
+    setJobDescUrl("");
+    setResults(null);
+    setEnhancedResults(null);
+    setError(null);
   };
 
   const handleAnalyze = async (e: React.FormEvent) => {
@@ -72,25 +85,58 @@ export default function Home() {
       if (jobTitle) formData.append('job_title', jobTitle);
       if (jobDesc) formData.append('job_description', jobDesc);
       
-      const response = await fetch('http://localhost:3002/analyze', {
+      // Try the enhanced API first
+      const response = await fetch('http://localhost:8000/analyze-resume', {
         method: 'POST',
         body: formData,
       });
       
       const data = await response.json();
       
-      if (data.success && data.data) {
+      if (data.status === 'success' && data.data) {
+        setEnhancedResults(data);
+        setResults(null); // Clear legacy results
+      } else if (data.success && data.data) {
+        // Legacy response format
         setResults(data.data);
+        setEnhancedResults(null);
       } else {
         setError(data.message || 'Analysis failed');
       }
       
     } catch (err) {
-      setError('Failed to connect to analysis service. Please ensure the backend is running.');
+      // Fallback to original backend
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (jobTitle) formData.append('job_title', jobTitle);
+        if (jobDesc) formData.append('job_description', jobDesc);
+        
+        const response = await fetch('http://localhost:3002/analyze', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setResults(data.data);
+          setEnhancedResults(null);
+        } else {
+          setError(data.message || 'Analysis failed');
+        }
+      } catch (fallbackErr) {
+        setError('Failed to connect to analysis service. Please ensure the backend is running.');
+      }
     } finally {
       setAnalyzing(false);
     }
   };
+
+  // Show enhanced results if available
+  if (enhancedResults) {
+    return <AnalysisResults results={enhancedResults} onReset={handleReset} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">

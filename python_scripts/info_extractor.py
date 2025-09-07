@@ -243,6 +243,9 @@ class InformationExtractor:
         
         skills_data["total_skills_found"] = len(skills_data["matched_skills"])
         
+        # Add all_skills as an alias for matched_skills for compatibility
+        skills_data["all_skills"] = skills_data["matched_skills"].copy()
+        
         # Identify missing important skills (high-demand skills not found)
         important_skills = self._get_important_skills()
         for skill in important_skills:

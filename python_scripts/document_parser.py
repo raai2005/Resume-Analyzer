@@ -13,6 +13,7 @@ from text_normalizer import TextNormalizer
 from info_extractor import InformationExtractor
 from gemini_analyzer import GeminiAnalyzer
 from ats_analyzer import ATSAnalyzer
+from quality_scorer import ResumeQualityScorer
 
 
 def parse_document(file_path: str, job_description: str = None, job_title: str = None, 
@@ -168,7 +169,45 @@ def parse_document(file_path: str, job_description: str = None, job_title: str =
         
         result["ats_analysis"] = ats_analysis
         
-        # Step 7: Detect sections using normalized text (legacy support)
+        # Step 7: Comprehensive quality scoring
+        quality_analysis = {}
+        if extracted_text.strip() and information_extraction.get("success"):
+            # Determine target experience years from job context
+            target_experience_years = None
+            if job_title:
+                # Simple heuristic based on job title
+                title_lower = job_title.lower()
+                if any(term in title_lower for term in ["senior", "lead", "principal"]):
+                    target_experience_years = 5
+                elif any(term in title_lower for term in ["junior", "associate", "entry"]):
+                    target_experience_years = 2
+                else:
+                    target_experience_years = 3  # Default mid-level
+            
+            # Combine required and preferred skills for quality analysis
+            target_skills_combined = []
+            if required_skills:
+                target_skills_combined.extend(required_skills)
+            if preferred_skills:
+                target_skills_combined.extend(preferred_skills)
+            
+            quality_scorer = ResumeQualityScorer()
+            quality_analysis = quality_scorer.score_resume_quality(
+                extracted_text,
+                information_extraction,
+                target_skills_combined if target_skills_combined else None,
+                target_experience_years,
+                ats_analysis
+            )
+        else:
+            quality_analysis = {
+                "success": False,
+                "error": "No text or extracted data available for quality analysis"
+            }
+        
+        result["quality_analysis"] = quality_analysis
+        
+        # Step 8: Detect sections using normalized text (legacy support)
         if normalized_text.strip():
             detector = SectionDetector()
             section_result = detector.detect_sections(normalized_text)
@@ -176,7 +215,7 @@ def parse_document(file_path: str, job_description: str = None, job_title: str =
         else:
             result["section_detection"]["error"] = "No text available for section detection"
         
-        # Step 8: Generate enhanced summary with extracted information
+        # Step 9: Generate enhanced summary with extracted information
         summary = {
             "total_characters": len(extracted_text),
             "total_words": len(extracted_text.split()),
@@ -209,11 +248,17 @@ def parse_document(file_path: str, job_description: str = None, job_title: str =
             "ats_compatibility_level": ats_analysis.get("compatibility_level", "unknown"),
             "ats_priority_issues": len(ats_analysis.get("priority_issues", [])),
             "ats_word_count": ats_analysis.get("length_analysis", {}).get("word_count", 0),
-            "ats_estimated_pages": ats_analysis.get("length_analysis", {}).get("estimated_pages", 0)
+            "ats_estimated_pages": ats_analysis.get("length_analysis", {}).get("estimated_pages", 0),
+            # Quality analysis scores
+            "quality_score": quality_analysis.get("overall_score", 0),
+            "quality_level": quality_analysis.get("quality_level", "unknown"),
+            "content_fit_score": quality_analysis.get("score_breakdown", {}).get("content_fit", {}).get("score", 0),
+            "clarity_score": quality_analysis.get("score_breakdown", {}).get("clarity_quantification", {}).get("score", 0),
+            "structure_score": quality_analysis.get("score_breakdown", {}).get("structure_readability", {}).get("score", 0)
         }
         result["summary"] = summary
         
-        # Step 9: Generate comprehensive recommendations
+        # Step 10: Generate comprehensive recommendations
         recommendations = []
         
         # Text extraction recommendations
@@ -244,6 +289,15 @@ def parse_document(file_path: str, job_description: str = None, job_title: str =
                 recommendations.extend(ats_recs["critical"][:2])  # Top 2 critical issues
             if ats_recs.get("high_priority"):
                 recommendations.extend(ats_recs["high_priority"][:3])  # Top 3 high priority issues
+        
+        # Quality-based recommendations
+        if quality_analysis.get("recommendations"):
+            quality_recs = quality_analysis["recommendations"]
+            # Add critical and high priority quality recommendations
+            if quality_recs.get("critical"):
+                recommendations.extend(quality_recs["critical"][:2])  # Top 2 critical issues
+            if quality_recs.get("high_priority"):
+                recommendations.extend(quality_recs["high_priority"][:2])  # Top 2 high priority issues
         
         # Information extraction recommendations
         contact_info = information_extraction.get("contact_info", {})

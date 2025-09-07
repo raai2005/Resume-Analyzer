@@ -1,0 +1,276 @@
+{
+  "status": "success",
+  "status_code": 200,
+  "message": "Resume analysis completed successfully",
+  "data": {
+    "status": "success",
+    "timestamp": "2025-09-08T02:12:33.885141",
+    "contact_info": {
+      "name": "ALEX CHEN",
+      "email": "alex.chen@email.com",
+      "email_valid": true,
+      "phone": "(555) 123-4567",
+      "phone_provided": true,
+      "location": "",
+      "links": [
+        {
+          "type": "linkedin",
+          "url": "linkedin.com/in/alexchen",
+          "label": "LinkedIn Profile"
+        },
+        {
+          "type": "github",
+          "url": "github.com/alexchen",
+          "label": "GitHub Profile"
+        }
+      ],
+      "completeness_score": 100
+    },
+    "education": [],
+    "experience": [],
+    "skills": {
+      "all_skills": [
+        "Python",
+        "JavaScript",
+        "TypeScript",
+        "Java",
+        "React",
+        "Vue.js",
+        "Node.js",
+        "Express.js",
+        "Django",
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "AWS",
+        "Docker",
+        "Jenkins",
+        "Git",
+        "GitHub"
+      ],
+      "categorized": {
+        "technical": [],
+        "programming_languages": [
+          "Python",
+          "JavaScript",
+          "TypeScript",
+          "Java"
+        ],
+        "frameworks": [],
+        "tools": [],
+        "soft_skills": [],
+        "languages": []
+      },
+      "total_count": 17,
+      "matched": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "PostgreSQL",
+        "AWS"
+      ],
+      "missing": [],
+      "bonus": [
+        "Python",
+        "Java",
+        "Vue.js",
+        "Express.js",
+        "Django",
+        "MongoDB",
+        "Redis",
+        "Docker",
+        "Jenkins",
+        "Git"
+      ],
+      "match_percentage": 100.0,
+      "coverage_analysis": {
+        "overall_coverage": 80.0,
+        "gap_level": "excellent",
+        "critical_missing": [],
+        "nice_to_have": []
+      }
+    },
+    "projects": [],
+    "certifications": [],
+    "role_inference": "Frontend Engineer",
+    "quality_scores": {
+      "available": false,
+      "error": null
+    },
+    "ats_compatibility": {
+      "available": true,
+      "score": 82.5,
+      "compatibility_level": "good",
+      "file_format_score": 0,
+      "layout_score": 0,
+      "content_score": 0,
+      "priority_issues": [],
+      "recommendations": {
+        "critical": [],
+        "high_priority": [],
+        "medium_priority": [],
+        "low_priority": [
+          "Use standard fonts (Arial, Calibri, Times New Roman)",
+          "Ensure consistent formatting throughout document",
+          "Use bullet points for lists instead of special characters"
+        ]
+      }
+    },
+    "experience_summary": {
+      "total_years": 0.0,
+      "career_level": "entry",
+      "total_positions": 0,
+      "industries": [],
+      "company_sizes": [],
+      "most_recent_role": "",
+      "employment_gaps": []
+    },
+    "recommendations": {
+      "total_count": 10,
+      "by_priority": {
+        "critical": [],
+        "high_priority": [
+          "Improve ATS compatibility by simplifying formatting"
+        ],
+        "medium_priority": [
+          "Add metrics to 2 more bullet points",
+          "Strengthen 1 bullet points with better action verbs"
+        ],
+        "ats_improvements": {
+          "critical": [],
+          "high_priority": [],
+          "medium_priority": [],
+          "low_priority": [
+            "Use standard fonts (Arial, Calibri, Times New Roman)",
+            "Ensure consistent formatting throughout document",
+            "Use bullet points for lists instead of special characters"
+          ]
+        },
+        "general": [
+          "Add contact information",
+          "Include metrics in experience",
+          "Improve ATS compatibility by simplifying formatting"
+        ]
+      },
+      "top_3": [
+        "Improve ATS compatibility by simplifying formatting",
+        "critical",
+        "high_priority"
+      ]
+    },
+    "document_metrics": {
+      "file_info": {
+        "filename": "test_api_resume.docx",
+        "size_mb": 0.04,
+        "format": ".docx"
+      },
+      "content_metrics": {
+        "total_words": 107,
+        "total_characters": 853,
+        "estimated_pages": 0.4,
+        "bullet_points": 5,
+        "sections_count": 3
+      },
+      "parsing_info": {
+        "parsing_method": "python-docx",
+        "is_scanned": false,
+        "structure_quality": "excellent"
+      }
+    },
+    "strengths": [
+      "Excellent Ats Friendliness"
+    ],
+    "improvement_areas": [],
+    "match_analysis": {
+      "available": true,
+      "overall_match": 75,
+      "experience_level_match": "entry",
+      "skills_coverage": 80.0,
+      "gap_analysis": {
+        "overall_coverage": 80.0,
+        "gap_level": "excellent",
+        "gap_description": "Strong skill alignment - excellent match for target role",
+        "target_source": "explicit_skills",
+        "matched_skills": [
+          "node.js",
+          "postgresql",
+          "typescript",
+          "aws",
+          "javascript",
+          "react",
+          "docker",
+          "python"
+        ],
+        "missing_required": [],
+        "missing_preferred": [
+          "mentoring",
+          "leadership"
+        ],
+        "bonus_skills": [
+          "django",
+          "java",
+          "vue.js",
+          "git",
+          "mongodb",
+          "jenkins",
+          "redis"
+        ],
+        "priority_skills_to_add": [
+          "mentoring",
+          "leadership"
+        ],
+        "recommendations": {
+          "immediate_priority": [],
+          "medium_priority": [
+            "Consider learning 'mentoring' - preferred by employers",
+            "Consider learning 'leadership' - preferred by employers"
+          ],
+          "long_term": [
+            "Consider cloud certifications (AWS, Azure, GCP)",
+            "Learn modern testing frameworks and methodologies",
+            "Develop leadership and communication skills"
+          ],
+          "leverage_existing": [
+            "Highlight 'django' - valuable differentiator",
+            "Highlight 'java' - valuable differentiator",
+            "Highlight 'vue.js' - valuable differentiator"
+          ],
+          "source_note": [
+            "Based on explicitly provided skill requirements"
+          ]
+        },
+        "coverage_breakdown": {
+          "required_coverage": 100.0,
+          "preferred_coverage": 50.0,
+          "total_target_skills": 10,
+          "total_resume_skills": 17
+        }
+      },
+      "recommendations": {
+        "immediate_actions": [
+          "Add contact information",
+          "Include metrics in experience"
+        ],
+        "format_improvements": [
+          "Use consistent formatting",
+          "Add bullet points"
+        ],
+        "content_improvements": [
+          "Add project outcomes",
+          "Include soft skills"
+        ],
+        "keyword_optimization": [
+          "Add industry-specific keywords",
+          "Include technical terms"
+        ]
+      }
+    },
+    "keywords": {
+      "technical_keywords": [],
+      "industry_keywords": [],
+      "action_verbs": [],
+      "total_unique_keywords": 17
+    }
+  }
+}
