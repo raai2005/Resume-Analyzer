@@ -6,6 +6,305 @@ import fs from 'fs';
  * TypeScript interface for Python document parsing integration
  */
 
+export interface TextNormalizationResult {
+  original: string;
+  normalized: string;
+  lowercase_copy: string;
+  sections: NormalizedSection[];
+  bullet_points: BulletPoint[];
+  statistics: NormalizationStatistics;
+  cleaning_operations: string[];
+  success?: boolean;
+  error?: string;
+}
+
+export interface NormalizedSection {
+  title: string;
+  content: string;
+  line_start: number;
+  line_end: number;
+  word_count: number;
+  line_count: number;
+}
+
+export interface BulletPoint {
+  line_number: number;
+  full_line: string;
+  content: string;
+  bullet_type: string;
+  word_count: number;
+  char_count: number;
+}
+
+export interface NormalizationStatistics {
+  original_length: number;
+  normalized_length: number;
+  compression_ratio: number;
+  original_lines: number;
+  normalized_lines: number;
+  original_words: number;
+  normalized_words: number;
+  sections_found: number;
+  bullet_points_found: number;
+  bullet_types: string[];
+  avg_section_length: number;
+  avg_bullet_length: number;
+}
+
+export interface InformationExtractionResult {
+  success: boolean;
+  contact_info: ExtractedContactInfo;
+  experience: ExtractedExperience;
+  education: ExtractedEducation;
+  skills: ExtractedSkills;
+  projects: ExtractedProjects;
+  certifications: ExtractedCertifications;
+  role_inference: RoleInference;
+  summary_stats: ExtractionSummaryStats;
+  extraction_metadata: ExtractionMetadata;
+  error?: string;
+}
+
+export interface ExtractedContactInfo {
+  name?: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+  address?: string;
+  confidence_scores: Record<string, number>;
+}
+
+export interface ExtractedExperience {
+  total_years: number;
+  positions: WorkPosition[];
+  companies: string[];
+  internships: WorkPosition[];
+  full_time_jobs: WorkPosition[];
+  current_position?: WorkPosition;
+  career_level: string;
+}
+
+export interface WorkPosition {
+  title: string;
+  company: string;
+  description: string;
+  start_date?: string;
+  end_date?: string;
+  duration_months?: number;
+  is_current?: boolean;
+}
+
+export interface ExtractedEducation {
+  degrees: string[];
+  institutions: string[];
+  graduation_years: number[];
+  highest_degree?: string;
+  education_level: string;
+}
+
+export interface ExtractedSkills {
+  programming_languages: string[];
+  web_technologies: string[];
+  databases: string[];
+  cloud_platforms: string[];
+  tools_frameworks: string[];
+  soft_skills: string[];
+  matched_skills: string[];
+  missing_important_skills: string[];
+  skill_categories: Record<string, number>;
+  total_skills_found: number;
+}
+
+export interface ExtractedProjects {
+  projects: ProjectInfo[];
+  total_projects: number;
+  technologies_used: string[];
+  project_types: string[];
+}
+
+export interface ProjectInfo {
+  title: string;
+  description: string;
+  technologies: string[];
+  url?: string;
+}
+
+export interface ExtractedCertifications {
+  certifications: CertificationInfo[];
+  total_certifications: number;
+  providers: string[];
+  certification_years: number[];
+}
+
+export interface CertificationInfo {
+  name: string;
+  provider?: string;
+  year?: number;
+  url?: string;
+}
+
+export interface RoleInference {
+  primary_role: string;
+  confidence: number;
+  role_scores: Record<string, number>;
+  supporting_keywords: string[];
+}
+
+export interface ExtractionSummaryStats {
+  total_experience_years: number;
+  total_skills: number;
+  total_projects: number;
+  total_certifications: number;
+  education_level: string;
+  career_level: string;
+  primary_role: string;
+  contact_completeness: number;
+}
+
+export interface ExtractionMetadata {
+  text_length: number;
+  extraction_timestamp: string;
+  patterns_used: string[];
+}
+
+export interface AIAnalysisResult {
+  success: boolean;
+  formatted_analysis?: FormattedAnalysis;
+  ai_powered: boolean;
+  model_used: string;
+  has_job_context: boolean;
+  error?: string;
+}
+
+export interface FormattedAnalysis {
+  summary: AnalysisSummary;
+  strengths: string[];
+  improvements: string[];
+  recommendations: AnalysisRecommendations;
+  contact_completeness: number;
+  experience_quality: string;
+  skills_relevance: string;
+  job_match?: JobMatchAnalysis;
+  skills_gap?: SkillsGapAnalysis;
+}
+
+export interface AnalysisSummary {
+  overall_score: number;
+  ats_compatibility: string;
+  experience_level: string;
+  target_roles: string[];
+}
+
+export interface AnalysisRecommendations {
+  immediate_actions: string[];
+  format_improvements: string[];
+  content_improvements: string[];
+  keyword_optimization: string[];
+  industry_alignment?: string[];
+}
+
+export interface JobMatchAnalysis {
+  overall_fit: number;
+  skills_match: number;
+  experience_relevance: string;
+  missing_required_skills: string[];
+  missing_preferred_skills: string[];
+  competitive_advantages: string[];
+  customization_tips: string[];
+  interview_prep: string[];
+  salary_points: string[];
+}
+
+export interface SkillsGapAnalysis {
+  overall_coverage: number;
+  gap_level: string;
+  gap_description: string;
+  target_source: string;
+  matched_skills: string[];
+  missing_required: string[];
+  missing_preferred: string[];
+  bonus_skills: string[];
+  priority_skills_to_add: string[];
+  recommendations: {
+    immediate_priority: string[];
+    medium_priority: string[];
+    long_term: string[];
+    leverage_existing: string[];
+    source_note: string[];
+  };
+  coverage_breakdown: {
+    required_coverage: number;
+    preferred_coverage: number;
+    total_target_skills: number;
+    total_resume_skills: number;
+  };
+}
+
+export interface ATSAnalysisResult {
+  file_info: {
+    filename: string;
+    extension: string;
+    size_bytes: number;
+    size_mb: number;
+    exists: boolean;
+  };
+  file_format_analysis: {
+    format_score: number;
+    is_preferred_format: boolean;
+    is_scanned_pdf: boolean;
+    format_warnings: string[];
+    format_recommendations: string[];
+  };
+  layout_analysis: {
+    layout_score: number;
+    has_multi_column: boolean;
+    excessive_tables: boolean;
+    excessive_images: boolean;
+    excessive_textboxes: boolean;
+    layout_warnings: string[];
+    layout_recommendations: string[];
+  };
+  content_analysis: {
+    content_score: number;
+    has_required_sections: Record<string, boolean>;
+    contact_info_complete: boolean;
+    excessive_symbols: boolean;
+    content_warnings: string[];
+    content_recommendations: string[];
+  };
+  length_analysis: {
+    length_score: number;
+    word_count: number;
+    estimated_pages: number;
+    experience_years: number;
+    recommended_pages: number;
+    length_appropriate: boolean;
+    length_warnings: string[];
+    length_recommendations: string[];
+  };
+  ats_score: {
+    total_score: number;
+    breakdown: {
+      file_format: number;
+      layout: number;
+      content: number;
+      length: number;
+    };
+    critical_penalty: boolean;
+    max_possible_score: number;
+  };
+  recommendations: {
+    critical: string[];
+    high_priority: string[];
+    medium_priority: string[];
+    low_priority: string[];
+  };
+  compatibility_level: string;
+  priority_issues: string[];
+}
+
 export interface ParsedDocument {
   success: boolean;
   file_info: {
@@ -23,6 +322,10 @@ export interface ParsedDocument {
     char_count?: number;
     error?: string;
   };
+  text_normalization?: TextNormalizationResult;
+  information_extraction?: InformationExtractionResult;
+  ai_analysis?: AIAnalysisResult;
+  ats_analysis?: ATSAnalysisResult;
   section_detection: {
     success: boolean;
     sections: ResumeSection[];
@@ -38,6 +341,31 @@ export interface ParsedDocument {
     parsing_method?: string;
     is_scanned: boolean;
     structure_quality: string;
+    // Text normalization summary fields
+    normalized_characters?: number;
+    normalized_words?: number;
+    bullet_points_found?: number;
+    sections_by_headings?: number;
+    compression_ratio?: number;
+    // Information extraction summary fields
+    total_experience_years?: number;
+    total_skills_found?: number;
+    total_projects?: number;
+    total_certifications?: number;
+    education_level?: string;
+    career_level?: string;
+    primary_role?: string;
+    // AI analysis scores
+    ai_overall_score?: number;
+    ats_compatibility?: string;
+    contact_completeness?: number;
+    ai_powered?: boolean;
+    // ATS analysis scores
+    ats_score?: number;
+    ats_compatibility_level?: string;
+    ats_priority_issues?: number;
+    ats_word_count?: number;
+    ats_estimated_pages?: number;
   };
   recommendations: string[];
   error?: string;
@@ -106,7 +434,14 @@ export class DocumentParserService {
   /**
    * Parse a document file and extract structured information
    */
-  async parseDocument(filePath: string): Promise<ParsedDocument> {
+  async parseDocument(
+    filePath: string,
+    jobDescription?: string,
+    jobTitle?: string,
+    company?: string,
+    requiredSkills?: string[],
+    preferredSkills?: string[]
+  ): Promise<ParsedDocument> {
     try {
       // Validate input
       if (!fs.existsSync(filePath)) {
@@ -117,8 +452,18 @@ export class DocumentParserService {
         throw new Error(`Parser script not found: ${this.documentParserScript}`);
       }
 
+      // Prepare Python script arguments
+      const args = [filePath];
+      
+      // Add job context parameters (use 'None' for undefined values)
+      args.push(jobDescription || 'None');
+      args.push(jobTitle || 'None');
+      args.push(company || 'None');
+      args.push(requiredSkills ? JSON.stringify(requiredSkills) : 'None');
+      args.push(preferredSkills ? JSON.stringify(preferredSkills) : 'None');
+
       // Execute Python parser
-      const result = await this.executePythonScript(this.documentParserScript, [filePath]);
+      const result = await this.executePythonScript(this.documentParserScript, args);
       
       // Validate and return result
       if (!this.isValidParseResult(result)) {

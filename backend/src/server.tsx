@@ -31,6 +31,9 @@ const PORT: number = parseInt(process.env.PORT || '3002', 10);
 interface AnalyzeRequestBody {
   job_title?: string;
   job_description?: string;
+  company?: string;
+  required_skills?: string; // JSON string of skills array
+  preferred_skills?: string; // JSON string of skills array
 }
 
 interface FileMetadata {
@@ -142,7 +145,29 @@ app.post('/analyze', uploadLimiter, upload.single('file'), async (req: Request<{
     uploadedFilePath = req.file.path;
 
     // Extract form data
-    const { job_title, job_description }: AnalyzeRequestBody = req.body;
+    const { 
+      job_title, 
+      job_description, 
+      company, 
+      required_skills: requiredSkillsStr, 
+      preferred_skills: preferredSkillsStr 
+    }: AnalyzeRequestBody = req.body;
+
+    // Parse skills arrays from JSON strings
+    let requiredSkills: string[] | undefined;
+    let preferredSkills: string[] | undefined;
+    
+    try {
+      if (requiredSkillsStr) {
+        requiredSkills = JSON.parse(requiredSkillsStr);
+      }
+      if (preferredSkillsStr) {
+        preferredSkills = JSON.parse(preferredSkillsStr);
+      }
+    } catch (parseError) {
+      console.warn('Failed to parse skills arrays:', parseError);
+      // Continue without skills arrays
+    }
 
     // Convert Express.Multer.File to UploadedFile type
     const uploadedFile: UploadedFile = {
@@ -205,7 +230,14 @@ app.post('/analyze', uploadLimiter, upload.single('file'), async (req: Request<{
     // Parse the document using Python scripts
     let parseResult: ParsedDocument;
     try {
-      parseResult = await documentParserService.parseDocument(req.file.path);
+      parseResult = await documentParserService.parseDocument(
+        req.file.path, 
+        job_description, 
+        job_title, 
+        company, 
+        requiredSkills, 
+        preferredSkills
+      );
       
       // Update metadata with parsing results
       fileMetadata.status = parseResult.success ? 'parsed' : 'parse_failed';

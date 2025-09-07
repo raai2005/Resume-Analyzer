@@ -9,14 +9,25 @@ from typing import Dict, Any
 from pdf_parser import extract_pdf_text
 from docx_parser import extract_docx_text
 from section_detector import SectionDetector
+from text_normalizer import TextNormalizer
+from info_extractor import InformationExtractor
+from gemini_analyzer import GeminiAnalyzer
+from ats_analyzer import ATSAnalyzer
 
 
-def parse_document(file_path: str) -> Dict[str, Any]:
+def parse_document(file_path: str, job_description: str = None, job_title: str = None, 
+                  company: str = None, required_skills: list = None, 
+                  preferred_skills: list = None) -> Dict[str, Any]:
     """
     Parse a resume document and extract structured information
     
     Args:
         file_path: Path to the document file
+        job_description: Optional job description for targeted analysis
+        job_title: Optional job title for context
+        company: Optional company name for context
+        required_skills: Optional list of required skills
+        preferred_skills: Optional list of preferred skills
         
     Returns:
         Complete parsing results including text extraction and section detection
@@ -88,15 +99,84 @@ def parse_document(file_path: str) -> Dict[str, Any]:
         
         extracted_text = text_result["text"]
         
-        # Step 2: Detect sections if text extraction was successful
+        # Step 2: Normalize and clean text if extraction was successful
+        text_normalization = {}
         if extracted_text.strip():
+            normalizer = TextNormalizer()
+            text_normalization = normalizer.normalize_text(extracted_text)
+            # Use normalized text for further processing
+            normalized_text = text_normalization["normalized"]
+        else:
+            normalized_text = extracted_text
+            text_normalization = {
+                "success": False,
+                "error": "No text available for normalization"
+            }
+        
+        result["text_normalization"] = text_normalization
+        
+        # Step 3: Extract structured information
+        information_extraction = {}
+        if normalized_text.strip():
+            extractor = InformationExtractor()
+            information_extraction = extractor.extract_all_information(extracted_text, normalized_text)
+        else:
+            information_extraction = {
+                "success": False,
+                "error": "No text available for information extraction"
+            }
+        
+        result["information_extraction"] = information_extraction
+        
+        # Step 4: AI-powered analysis using Gemini
+        ai_analysis = {}
+        if information_extraction.get("success"):
+            analyzer = GeminiAnalyzer()
+            ai_analysis = analyzer.analyze_resume(
+                information_extraction, 
+                extracted_text,
+                job_description=job_description,
+                job_title=job_title,
+                company=company,
+                required_skills=required_skills,
+                preferred_skills=preferred_skills
+            )
+            # Format for display
+            ai_analysis = analyzer.format_analysis_for_display(ai_analysis)
+        else:
+            ai_analysis = {
+                "success": False,
+                "error": "Cannot perform AI analysis without extracted information"
+            }
+        
+        result["ai_analysis"] = ai_analysis
+        
+        # Step 6: Comprehensive ATS compatibility analysis
+        ats_analysis = {}
+        if extracted_text.strip():
+            ats_analyzer = ATSAnalyzer()
+            ats_analysis = ats_analyzer.analyze_ats_compatibility(
+                file_path, 
+                extracted_text, 
+                information_extraction
+            )
+        else:
+            ats_analysis = {
+                "success": False,
+                "error": "No text available for ATS analysis"
+            }
+        
+        result["ats_analysis"] = ats_analysis
+        
+        # Step 7: Detect sections using normalized text (legacy support)
+        if normalized_text.strip():
             detector = SectionDetector()
-            section_result = detector.detect_sections(extracted_text)
+            section_result = detector.detect_sections(normalized_text)
             result["section_detection"] = section_result
         else:
             result["section_detection"]["error"] = "No text available for section detection"
         
-        # Step 3: Generate summary
+        # Step 8: Generate enhanced summary with extracted information
         summary = {
             "total_characters": len(extracted_text),
             "total_words": len(extracted_text.split()),
@@ -104,21 +184,82 @@ def parse_document(file_path: str) -> Dict[str, Any]:
             "sections_detected": len(result["section_detection"].get("sections", [])),
             "parsing_method": text_result.get("parsing_method", "unknown"),
             "is_scanned": text_result.get("is_scanned", False),
-            "structure_quality": result["section_detection"].get("structure_analysis", {}).get("structure_quality", "unknown")
+            "structure_quality": result["section_detection"].get("structure_analysis", {}).get("structure_quality", "unknown"),
+            # Text normalization statistics
+            "normalized_characters": text_normalization.get("statistics", {}).get("normalized_length", 0),
+            "normalized_words": text_normalization.get("statistics", {}).get("normalized_words", 0),
+            "bullet_points_found": text_normalization.get("statistics", {}).get("bullet_points_found", 0),
+            "sections_by_headings": text_normalization.get("statistics", {}).get("sections_found", 0),
+            "compression_ratio": text_normalization.get("statistics", {}).get("compression_ratio", 1.0),
+            # Information extraction statistics
+            "total_experience_years": information_extraction.get("summary_stats", {}).get("total_experience_years", 0),
+            "total_skills_found": information_extraction.get("summary_stats", {}).get("total_skills", 0),
+            "total_projects": information_extraction.get("summary_stats", {}).get("total_projects", 0),
+            "total_certifications": information_extraction.get("summary_stats", {}).get("total_certifications", 0),
+            "education_level": information_extraction.get("summary_stats", {}).get("education_level", "unknown"),
+            "career_level": information_extraction.get("summary_stats", {}).get("career_level", "entry"),
+            "primary_role": information_extraction.get("summary_stats", {}).get("primary_role", "unknown"),
+            # AI analysis scores
+            "ai_overall_score": ai_analysis.get("formatted_analysis", {}).get("summary", {}).get("overall_score", 0),
+            "ats_compatibility": ai_analysis.get("formatted_analysis", {}).get("summary", {}).get("ats_compatibility", "unknown"),
+            "contact_completeness": ai_analysis.get("formatted_analysis", {}).get("contact_completeness", 0),
+            "ai_powered": ai_analysis.get("ai_powered", False),
+            # ATS analysis scores
+            "ats_score": ats_analysis.get("ats_score", {}).get("total_score", 0),
+            "ats_compatibility_level": ats_analysis.get("compatibility_level", "unknown"),
+            "ats_priority_issues": len(ats_analysis.get("priority_issues", [])),
+            "ats_word_count": ats_analysis.get("length_analysis", {}).get("word_count", 0),
+            "ats_estimated_pages": ats_analysis.get("length_analysis", {}).get("estimated_pages", 0)
         }
         result["summary"] = summary
         
-        # Step 4: Generate recommendations
+        # Step 9: Generate comprehensive recommendations
         recommendations = []
         
         # Text extraction recommendations
         if text_result.get("is_scanned"):
             recommendations.append("Document appears to be scanned - consider using OCR for better text extraction")
         
-        # Section detection recommendations
+        # Text normalization recommendations
+        if text_normalization.get("statistics", {}).get("compression_ratio", 1.0) < 0.9:
+            recommendations.append("Text contained formatting issues that were cleaned up")
+        
+        bullet_count = text_normalization.get("statistics", {}).get("bullet_points_found", 0)
+        if bullet_count == 0:
+            recommendations.append("Consider using bullet points to improve readability")
+        elif bullet_count > 20:
+            recommendations.append("Consider consolidating bullet points for better focus")
+        
+        # AI-powered recommendations
+        if ai_analysis.get("success") and ai_analysis.get("formatted_analysis"):
+            ai_recommendations = ai_analysis["formatted_analysis"].get("recommendations", {})
+            if ai_recommendations.get("immediate_actions"):
+                recommendations.extend(ai_recommendations["immediate_actions"][:3])  # Top 3 immediate actions
+        
+        # ATS compatibility recommendations
+        if ats_analysis.get("recommendations"):
+            ats_recs = ats_analysis["recommendations"]
+            # Add critical and high priority ATS recommendations
+            if ats_recs.get("critical"):
+                recommendations.extend(ats_recs["critical"][:2])  # Top 2 critical issues
+            if ats_recs.get("high_priority"):
+                recommendations.extend(ats_recs["high_priority"][:3])  # Top 3 high priority issues
+        
+        # Information extraction recommendations
+        contact_info = information_extraction.get("contact_info", {})
+        if not contact_info.get("email"):
+            recommendations.append("Add email address for better contact accessibility")
+        if not contact_info.get("phone"):
+            recommendations.append("Include phone number in contact information")
+        
+        skills_count = information_extraction.get("skills", {}).get("total_skills_found", 0)
+        if skills_count < 5:
+            recommendations.append("Add more technical skills to improve keyword matching")
+        
+        # Section detection recommendations (legacy)
         if result["section_detection"].get("success"):
             structure_recs = result["section_detection"]["structure_analysis"].get("recommendations", [])
-            recommendations.extend(structure_recs)
+            recommendations.extend(structure_recs[:2])  # Limit to 2 recommendations
         
         # General recommendations
         if summary["total_characters"] < 500:
@@ -142,15 +283,44 @@ def parse_document(file_path: str) -> Dict[str, Any]:
 
 def main():
     """Main function for command line usage"""
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print(json.dumps({
             "success": False,
-            "error": "Usage: python document_parser.py <file_path>"
+            "error": "Usage: python document_parser.py <file_path> [job_description] [job_title] [company] [required_skills] [preferred_skills]"
         }))
         sys.exit(1)
     
     file_path = sys.argv[1]
-    result = parse_document(file_path)
+    
+    # Parse optional job context parameters
+    job_description = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != 'None' else None
+    job_title = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != 'None' else None
+    company = sys.argv[4] if len(sys.argv) > 4 and sys.argv[4] != 'None' else None
+    
+    # Parse skills arrays from JSON strings
+    required_skills = None
+    preferred_skills = None
+    
+    if len(sys.argv) > 5 and sys.argv[5] != 'None':
+        try:
+            required_skills = json.loads(sys.argv[5])
+        except json.JSONDecodeError:
+            pass  # Continue without required skills
+    
+    if len(sys.argv) > 6 and sys.argv[6] != 'None':
+        try:
+            preferred_skills = json.loads(sys.argv[6])
+        except json.JSONDecodeError:
+            pass  # Continue without preferred skills
+    
+    result = parse_document(
+        file_path, 
+        job_description=job_description,
+        job_title=job_title,
+        company=company,
+        required_skills=required_skills,
+        preferred_skills=preferred_skills
+    )
     
     print(json.dumps(result, indent=2, ensure_ascii=False))
 

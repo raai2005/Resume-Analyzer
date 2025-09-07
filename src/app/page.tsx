@@ -31,6 +31,12 @@ interface ParsedResults {
     hasEducation: boolean;
     hasSkills: boolean;
     recommendations: string[];
+    // Text normalization fields
+    normalizedCharacters?: number;
+    normalizedWords?: number;
+    bulletPointsFound?: number;
+    sectionsByHeadings?: number;
+    compressionRatio?: number;
   };
   contactInfo: ContactInfo;
   sections: ResumeSection[];
@@ -332,6 +338,31 @@ export default function Home() {
                       <div className="text-sm text-slate-600">Characters</div>
                     </div>
                   </div>
+
+                  {/* Text Normalization Stats */}
+                  {results.parsing.bulletPointsFound !== undefined && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                      <h4 className="text-sm font-semibold text-slate-700 mb-3">Text Processing & Structure</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-indigo-600">{results.parsing.bulletPointsFound || 0}</div>
+                          <div className="text-xs text-slate-600">Bullet Points</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-purple-600">{results.parsing.sectionsByHeadings || 0}</div>
+                          <div className="text-xs text-slate-600">Headings</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-pink-600">{((results.parsing.compressionRatio || 1.0) * 100).toFixed(1)}%</div>
+                          <div className="text-xs text-slate-600">Text Quality</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-blue-600">{Math.round((results.parsing.normalizedCharacters || results.parsing.totalCharacters) / 1000)}K</div>
+                          <div className="text-xs text-slate-600">Clean Text</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Section Checklist */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
