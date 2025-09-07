@@ -1,23 +1,89 @@
 "use client";
 import { useState } from "react";
 
+// Define interfaces for the parsing results
+interface ContactInfo {
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+  github?: string;
+  website?: string;
+}
+
+interface ResumeSection {
+  type: string;
+  title: string;
+  wordCount: number;
+  confidence: number;
+}
+
+interface ParsedResults {
+  success: boolean;
+  filename: string;
+  parsing: {
+    success: boolean;
+    totalCharacters: number;
+    totalWords: number;
+    sectionsDetected: number;
+    structureQuality: string;
+    hasContact: boolean;
+    hasExperience: boolean;
+    hasEducation: boolean;
+    hasSkills: boolean;
+    recommendations: string[];
+  };
+  contactInfo: ContactInfo;
+  sections: ResumeSection[];
+}
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [jobTitle, setJobTitle] = useState("");
   const [jobDesc, setJobDesc] = useState("");
   const [jobDescUrl, setJobDescUrl] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [results, setResults] = useState<ParsedResults | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setResults(null); // Clear previous results
+      setError(null);
     }
   };
 
-  const handleAnalyze = (e: React.FormEvent) => {
+  const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!file) return;
+    
     setAnalyzing(true);
-    setTimeout(() => setAnalyzing(false), 1500);
+    setError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (jobTitle) formData.append('job_title', jobTitle);
+      if (jobDesc) formData.append('job_description', jobDesc);
+      
+      const response = await fetch('http://localhost:3002/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setResults(data.data);
+      } else {
+        setError(data.message || 'Analysis failed');
+      }
+      
+    } catch (err) {
+      setError('Failed to connect to analysis service. Please ensure the backend is running.');
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -212,7 +278,175 @@ export default function Home() {
                   </button>
                 </div>
               </form>
+              
+              {/* Error Display */}
+              {error && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-red-700 font-medium">{error}</span>
+                  </div>
+                </div>
+              )}
             </div>
+            
+            {/* Results Display */}
+            {results && (
+              <div className="mt-8 space-y-6">
+                {/* Summary Card */}
+                <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800">Analysis Complete</h3>
+                      <p className="text-sm text-slate-500">Resume: {results.filename}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="text-center p-4 bg-blue-50 rounded-xl">
+                      <div className="text-2xl font-bold text-blue-600">{results.parsing.totalWords}</div>
+                      <div className="text-sm text-slate-600">Words</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-xl">
+                      <div className="text-2xl font-bold text-purple-600">{results.parsing.sectionsDetected}</div>
+                      <div className="text-sm text-slate-600">Sections</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-xl">
+                      <div className={`text-2xl font-bold ${
+                        results.parsing.structureQuality === 'excellent' ? 'text-green-600' :
+                        results.parsing.structureQuality === 'good' ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {results.parsing.structureQuality}
+                      </div>
+                      <div className="text-sm text-slate-600">Quality</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-xl">
+                      <div className="text-2xl font-bold text-orange-600">{Math.round(results.parsing.totalCharacters / 1000)}K</div>
+                      <div className="text-sm text-slate-600">Characters</div>
+                    </div>
+                  </div>
+                  
+                  {/* Section Checklist */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`flex items-center space-x-2 ${results.parsing.hasContact ? 'text-green-600' : 'text-red-500'}`}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d={results.parsing.hasContact ? "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" : "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"} clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">Contact Info</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 ${results.parsing.hasExperience ? 'text-green-600' : 'text-red-500'}`}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d={results.parsing.hasExperience ? "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" : "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"} clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">Experience</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 ${results.parsing.hasEducation ? 'text-green-600' : 'text-red-500'}`}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d={results.parsing.hasEducation ? "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" : "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"} clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">Education</span>
+                    </div>
+                    <div className={`flex items-center space-x-2 ${results.parsing.hasSkills ? 'text-green-600' : 'text-red-500'}`}>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d={results.parsing.hasSkills ? "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" : "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"} clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm font-medium">Skills</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Contact Information */}
+                {Object.keys(results.contactInfo).length > 0 && (
+                  <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Contact Information Detected</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {results.contactInfo.email && (
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                          </svg>
+                          <span className="text-slate-700">{results.contactInfo.email}</span>
+                        </div>
+                      )}
+                      {results.contactInfo.phone && (
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                          </svg>
+                          <span className="text-slate-700">{results.contactInfo.phone}</span>
+                        </div>
+                      )}
+                      {results.contactInfo.linkedin && (
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-slate-700">{results.contactInfo.linkedin}</span>
+                        </div>
+                      )}
+                      {results.contactInfo.github && (
+                        <div className="flex items-center space-x-3">
+                          <svg className="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-slate-700">{results.contactInfo.github}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Sections Detected */}
+                {results.sections.length > 0 && (
+                  <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Sections Detected</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {results.sections.map((section, index) => (
+                        <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                          <div>
+                            <div className="font-medium text-slate-800 capitalize">{section.type}</div>
+                            <div className="text-sm text-slate-500">{section.wordCount} words</div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-sm font-medium ${
+                              section.confidence > 0.8 ? 'text-green-600' :
+                              section.confidence > 0.6 ? 'text-yellow-600' : 'text-red-500'
+                            }`}>
+                              {Math.round(section.confidence * 100)}% confident
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Recommendations */}
+                {results.parsing.recommendations.length > 0 && (
+                  <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Recommendations</h3>
+                    <div className="space-y-3">
+                      {results.parsing.recommendations.map((rec, index) => (
+                        <div key={index} className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-xl">
+                          <svg className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm text-slate-700">{rec}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </main>
 
