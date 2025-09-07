@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AnalysisResults, AnalysisResponse } from "../components/AnalysisResults";
+import { AnalysisResults, type AnalysisResponse } from "../components";
 
 // Define interfaces for the parsing results (legacy - kept for backward compatibility)
 interface ContactInfo {

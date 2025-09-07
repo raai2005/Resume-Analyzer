@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { ScoreCard } from "./ScoreCard";
-import { SkillsAnalysis } from "./SkillsAnalysis";
-import { ATSAnalysis } from "./ATSAnalysis";
-import { Recommendations } from "./Recommendations";
-import { DetailedInsights } from "./DetailedInsights";
+import { 
+  ScoreCard,
+  SkillsAnalysis,
+  ATSAnalysis,
+  Recommendations,
+  DetailedInsights
+} from "./index";
 
 // Enhanced interfaces for comprehensive analysis
 export interface AnalysisResponse {
