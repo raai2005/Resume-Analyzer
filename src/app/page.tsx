@@ -104,30 +104,8 @@ export default function Home() {
         setError(data.message || 'Analysis failed');
       }
       
-    } catch (err) {
-      // Fallback to original backend
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        if (jobTitle) formData.append('job_title', jobTitle);
-        if (jobDesc) formData.append('job_description', jobDesc);
-        
-        const response = await fetch('http://localhost:3002/analyze', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          setResults(data.data);
-          setEnhancedResults(null);
-        } else {
-          setError(data.message || 'Analysis failed');
-        }
-      } catch (fallbackErr) {
-        setError('Failed to connect to analysis service. Please ensure the backend is running.');
-      }
+    } catch (error) {
+      setError('Failed to connect to analysis service. Please ensure the backend is running.');
     } finally {
       setAnalyzing(false);
     }

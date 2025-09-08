@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resume Analyzer
 
-## Getting Started
+A comprehensive resume analysis tool with AI-powered insights, ATS compatibility scoring, and detailed feedback reporting.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **PDF & DOCX Support**: Parse resumes in multiple formats
+- **ATS Compatibility**: Analyze resume compatibility with Applicant Tracking Systems
+- **AI-Powered Analysis**: Leverage Google Gemini AI for intelligent insights
+- **Quality Scoring**: Multi-dimensional quality assessment across 30+ categories
+- **Skills Analysis**: Match skills against job requirements and identify gaps
+- **Detailed Reporting**: Comprehensive feedback with actionable recommendations
+
+## Architecture
+
+- **Frontend**: Next.js 15 with React 19 and TypeScript
+- **Backend**: FastAPI Python server
+- **AI Integration**: Google Gemini API for advanced analysis
+
+## Project Structure
+
+```
+resume_analyzer/
+├── src/                    # Next.js frontend
+│   ├── app/               # App router pages
+│   └── components/        # React components
+├── python_scripts/        # Core Python modules
+│   ├── final_api.py      # Main API endpoint
+│   ├── document_parser.py # Document parsing orchestration
+│   ├── ats_analyzer.py   # ATS compatibility analysis
+│   ├── quality_scorer.py # Quality assessment
+│   └── ...               # Other analysis modules
+├── fastapi_server.py      # FastAPI server entry point
+├── requirements.txt       # Python dependencies
+└── package.json          # Node.js dependencies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18+
+- Python 3.8+
+- Google Gemini API key (optional, for AI features)
 
-## Learn More
+### Installation
 
-To learn more about Next.js, take a look at the following resources:
+1. **Install Python dependencies:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Install Node.js dependencies:**
 
-## Deploy on Vercel
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set up environment variables:**
+   Create a `.env` file in the root directory:
+   ```
+   GEMINI_API_KEY=your_gemini_api_key_here
+   CORS_ORIGINS=http://localhost:3000
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Running the Application
+
+1. **Start the Python backend:**
+
+   ```bash
+   python fastapi_server.py
+   ```
+
+   The API server will run on `http://localhost:8000`
+
+2. **Start the Next.js frontend:**
+   ```bash
+   npm run dev
+   ```
+   The web application will be available at `http://localhost:3000`
+
+## Usage
+
+1. Open the application in your browser
+2. Upload a resume (PDF or DOCX format)
+3. Optionally provide job details for targeted analysis
+4. View comprehensive analysis results including:
+   - Contact information extraction
+   - Skills analysis and matching
+   - ATS compatibility score
+   - Quality assessment
+   - AI-powered insights and recommendations
+
+## API Documentation
+
+The API provides a comprehensive analysis endpoint at `/analyze-resume` with detailed response structure documented in `API_DOCUMENTATION.md`.
+
+## Build for Production
+
+```bash
+npm run build
+npm start
+```
+
+For the Python backend, use a production WSGI server like Gunicorn:
+
+```bash
+pip install gunicorn
+gunicorn fastapi_server:app -w 4 -k uvicorn.workers.UvicornWorker
+```

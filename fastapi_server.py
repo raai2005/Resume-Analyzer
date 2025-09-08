@@ -12,6 +12,11 @@ import os
 import sys
 import traceback
 from typing import Optional
+import uvicorn
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Add the python_scripts directory to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,10 +34,13 @@ except ImportError as e:
 
 app = FastAPI(title="Resume Analyzer API", description="Comprehensive resume analysis with ATS compatibility, quality scoring, and AI insights")
 
+# Get CORS origins from environment variable
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001").split(",")
+
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,12 +56,16 @@ async def root():
         "features": [
             "Comprehensive analysis with 30+ categories",
             "ATS compatibility scoring",
-            "Skills matching and gap analysis", 
             "AI-powered insights and recommendations",
-            "Industry and competitive analysis",
-            "Quality scoring with detailed breakdowns"
+            "Skills analysis and matching",
+            "Quality scoring across multiple dimensions"
         ]
     }
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment monitoring"""
+    return {"status": "healthy", "service": "resume-analyzer-api"}
 
 @app.post("/analyze-resume")
 async def analyze_resume(
@@ -168,6 +180,10 @@ async def analyze_resume(
                 os.rmdir(temp_dir)
         except:
             pass
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     import uvicorn
