@@ -18,13 +18,12 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Add the python_scripts directory to the path
+# Add the current backend directory to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-python_scripts_dir = os.path.join(current_dir, 'python_scripts')
-sys.path.insert(0, python_scripts_dir)
+sys.path.insert(0, current_dir)
 
 try:
-    from final_api import analyze_resume_api
+    from api.resume_analysis_api import analyze_resume_api
 except ImportError as e:
     print(f"Import error: {e}")
     print(f"Current directory: {current_dir}")

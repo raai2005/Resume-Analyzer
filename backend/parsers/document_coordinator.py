@@ -6,14 +6,14 @@ import json
 import sys
 import os
 from typing import Dict, Any
-from pdf_parser import extract_pdf_text
-from docx_parser import extract_docx_text
-from section_detector import SectionDetector
-from text_normalizer import TextNormalizer
-from info_extractor import InformationExtractor
-from gemini_analyzer import GeminiAnalyzer
-from ats_analyzer import ATSAnalyzer
-from quality_scorer import ResumeQualityScorer
+from .pdf_text_extractor import extract_pdf_text
+from .word_document_extractor import extract_docx_text
+from .resume_section_detector import SectionDetector
+from .text_cleaner import TextNormalizer
+from .data_extractor import InformationExtractor
+from ..ai_services.gemini_ai_service import GeminiAnalyzer
+from ..analyzers.ats_compatibility_analyzer import ATSAnalyzer
+from ..analyzers.resume_quality_scorer import ResumeQualityScorer
 
 
 def parse_document(file_path: str, job_description: str = None, job_title: str = None, 

@@ -28,8 +28,8 @@ import json
 import sys
 import os
 from typing import Dict, Any
-from document_parser import parse_document
-from feedback_report import FeedbackReportGenerator
+from ..parsers.document_coordinator import parse_document
+from ..analyzers.report_generator import FeedbackReportGenerator
 
 
 def analyze_resume_api(file_path: str, 

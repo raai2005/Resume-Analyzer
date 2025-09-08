@@ -1,0 +1,24 @@
+# Resume Analyzer - All Python Dependencies
+
+# FastAPI Server Dependencies
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# Resume Parsing Dependencies
+PyMuPDF
+PyPDF2==3.0.1
+python-docx==1.1.0
+requests>=2.25.1
+
+# AI Analysis Dependencies
+google-generativeai==0.3.2
+groq==0.4.1
+
+# Optional dependencies for advanced features
+# Uncomment if needed:
+# pytesseract==0.3.10  # For OCR fallback
+# Pillow==10.0.1       # For image processing
+# spacy==3.7.2         # For advanced NLP
+# nltk==3.8.1          # For text processing

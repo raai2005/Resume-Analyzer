@@ -1,24 +1,36 @@
-# Resume Analyzer - All Python Dependencies
+# Resume Analyzer - Complete Dependencies
+# Install with: pip install -r requirements.txt
 
-# FastAPI Server Dependencies
+# === Core Framework Dependencies ===
 fastapi==0.104.1
 uvicorn==0.24.0
 python-multipart==0.0.6
 python-dotenv==1.0.0
 
-# Resume Parsing Dependencies
-PyMuPDF
+# === Document Processing Dependencies ===
+PyMuPDF>=1.23.0
 PyPDF2==3.0.1
 python-docx==1.1.0
-requests>=2.25.1
 
-# AI Analysis Dependencies
+# === AI and Analysis Dependencies ===
 google-generativeai==0.3.2
 groq==0.4.1
+requests>=2.25.1
 
-# Optional dependencies for advanced features
-# Uncomment if needed:
+# === Web Framework Dependencies ===
+fastapi-cors
+starlette
+
+# === Development Dependencies ===
+pytest>=7.0.0
+pytest-asyncio
+httpx  # For testing FastAPI
+
+# === Optional Dependencies ===
+# Uncomment if needed for advanced features:
 # pytesseract==0.3.10  # For OCR fallback
 # Pillow==10.0.1       # For image processing
 # spacy==3.7.2         # For advanced NLP
 # nltk==3.8.1          # For text processing
+# pandas>=1.5.0        # For data analysis
+# numpy>=1.21.0        # For numerical computing
