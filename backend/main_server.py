@@ -27,8 +27,6 @@ try:
 except ImportError as e:
     print(f"Import error: {e}")
     print(f"Current directory: {current_dir}")
-    print(f"Python scripts directory: {python_scripts_dir}")
-    print(f"Files in python_scripts: {os.listdir(python_scripts_dir) if os.path.exists(python_scripts_dir) else 'Directory not found'}")
     raise
 
 app = FastAPI(title="Resume Analyzer API", description="Comprehensive resume analysis with ATS compatibility, quality scoring, and AI insights")
@@ -183,21 +181,3 @@ async def analyze_resume(
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    print("🚀 Starting Resume Analyzer API Server...")
-    print("📊 Features: Comprehensive analysis with 30+ categories")
-    print("🎯 ATS compatibility, skills matching, AI insights")
-    print("🔍 Quality scoring, industry analysis, competitive positioning")
-    print("🌐 API will be available at: http://localhost:8000")
-    print("📋 Interactive docs at: http://localhost:8000/docs")
-    
-    uvicorn.run(
-        "fastapi_server:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
